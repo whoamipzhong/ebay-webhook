@@ -18,7 +18,7 @@ app = Flask(__name__)
 VERIFICATION_TOKEN = "ebay-dropship-d4zvW4jeuetvruyxC5k80dUxuQ7yc6hX"
 ENDPOINT_URL       = os.environ.get(
     "ENDPOINT_URL",
-    "https://YOUR-APP-NAME.onrender.com/ebay/notifications"   # ← update after deploy
+    "https://ebay-webhook-kbuq.onrender.com/ebay/notifications"   # ← update after deploy
 )
 
 
