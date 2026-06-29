@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """
 eBay Marketplace Account Deletion Notification Endpoint
-Deploy to Render.com (free tier) to get a public HTTPS URL.
-
-Setup:
-  1. Deploy this file to Render.com as a Web Service
-  2. Set ENDPOINT_URL below to your actual Render URL
-  3. Fill the Alerts & Notifications page on developer.ebay.com
+Deployed on Render.com: https://ebay-webhook-kbuq.onrender.com
 """
 
 import hashlib, os, json
@@ -14,12 +9,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# ── MUST match what you entered on developer.ebay.com ─────────────────────────
 VERIFICATION_TOKEN = "ebay-dropship-d4zvW4jeuetvruyxC5k80dUxuQ7yc6hX"
-ENDPOINT_URL       = os.environ.get(
-    "ENDPOINT_URL",
-    "https://ebay-webhook-kbuq.onrender.com/ebay/notifications"   # ← update after deploy
-)
 
 
 @app.route("/", methods=["GET"])
@@ -31,12 +21,13 @@ def health():
 def notifications():
     if request.method == "GET":
         challenge_code = request.args.get("challenge_code", "")
+        # Compute endpoint URL dynamically; force https (Render terminates TLS at proxy)
+        endpoint_url = request.base_url.replace("http://", "https://")
         digest = hashlib.sha256(
-            f"{challenge_code}{VERIFICATION_TOKEN}{ENDPOINT_URL}".encode()
+            f"{challenge_code}{VERIFICATION_TOKEN}{endpoint_url}".encode()
         ).hexdigest()
         return jsonify({"challengeResponse": digest})
 
-    # POST — actual account deletion notification; just acknowledge
     try:
         payload = request.get_json(silent=True) or {}
         print(f"[eBay notification] {json.dumps(payload)[:200]}")
